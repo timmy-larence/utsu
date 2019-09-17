@@ -5,7 +5,7 @@ import java.util.Map;
 import com.google.common.base.Optional;
 import com.utsusynth.utsu.common.RegionBounds;
 import com.utsusynth.utsu.common.exception.NoteAlreadyExistsException;
-import com.utsusynth.utsu.model.voicebank.Voicebank;
+import com.utsusynth.utsu.model.voicebank.FSVoicebank;
 
 /**
  * Implementation of a linked list of SongNotes, including head.
@@ -108,7 +108,7 @@ public class NoteList implements Iterable<Note> {
             return this;
         }
 
-        public Builder standardize(NoteStandardizer standardizer, Voicebank voicebank) {
+        public Builder standardize(NoteStandardizer standardizer, FSVoicebank voicebank) {
             Optional<NoteNode> cur = tail;
             while (cur.isPresent()) {
                 cur.get().standardize(standardizer, voicebank);

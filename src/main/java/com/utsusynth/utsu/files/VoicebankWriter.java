@@ -19,7 +19,7 @@ import com.utsusynth.utsu.common.exception.ErrorLogger;
 import com.utsusynth.utsu.common.utils.RoundUtils;
 import com.utsusynth.utsu.model.voicebank.LyricConfig;
 import com.utsusynth.utsu.model.voicebank.LyricConfigMap;
-import com.utsusynth.utsu.model.voicebank.Voicebank;
+import com.utsusynth.utsu.model.voicebank.FSVoicebank;
 
 public class VoicebankWriter {
     private static final ErrorLogger errorLogger = ErrorLogger.getLogger();
@@ -27,7 +27,7 @@ public class VoicebankWriter {
             Charset.forName("SJIS").newEncoder().onMalformedInput(CodingErrorAction.REPORT)
                     .onUnmappableCharacter(CodingErrorAction.REPORT);
 
-    public void writeVoicebankToDirectory(Voicebank voicebank, File saveDir) {
+    public void writeVoicebankToDirectory(FSVoicebank voicebank, File saveDir) {
         // Save character.txt.
         File characterFile = saveDir.toPath().resolve("character.txt").toFile();
         String voiceData = voicebank.getName() + voicebank.getAuthor() + voicebank.getImagePath();

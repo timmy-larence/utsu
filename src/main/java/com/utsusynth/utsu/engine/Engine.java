@@ -20,7 +20,7 @@ import com.utsusynth.utsu.model.song.Note;
 import com.utsusynth.utsu.model.song.NoteIterator;
 import com.utsusynth.utsu.model.song.Song;
 import com.utsusynth.utsu.model.voicebank.LyricConfig;
-import com.utsusynth.utsu.model.voicebank.Voicebank;
+import com.utsusynth.utsu.model.voicebank.FSVoicebank;
 import javafx.application.Platform;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -190,7 +190,7 @@ public class Engine {
             return Optional.absent();
         }
         int totalDelta = notes.getCurDelta(); // Absolute position of current note.
-        Voicebank voicebank = song.getVoicebank();
+        FSVoicebank voicebank = song.getVoicebank();
         boolean isFirstNote = true;
         while (notes.hasNext()) {
             Note note = notes.next();
@@ -385,7 +385,7 @@ public class Engine {
     // Determines whether two notes are "touching" given the second note's preutterance.
     private static boolean areNotesTouching(
             Optional<Note> note,
-            Voicebank voicebank,
+            FSVoicebank voicebank,
             Optional<Double> nextPreutter) {
         if (!note.isPresent() || !nextPreutter.isPresent()) {
             return false;

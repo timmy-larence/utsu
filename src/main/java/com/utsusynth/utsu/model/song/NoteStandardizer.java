@@ -4,13 +4,13 @@ import com.google.common.base.Optional;
 import com.utsusynth.utsu.common.quantize.Quantizer;
 import com.utsusynth.utsu.common.utils.PitchUtils;
 import com.utsusynth.utsu.model.voicebank.LyricConfig;
-import com.utsusynth.utsu.model.voicebank.Voicebank;
+import com.utsusynth.utsu.model.voicebank.FSVoicebank;
 
 /** Standardizes a song note and prepares it for rendering. */
 public class NoteStandardizer {
 
     // This function should be called in the order: last note -> first note
-    void standardize(Optional<Note> prev, Note note, Optional<Note> next, Voicebank voicebank) {
+    void standardize(Optional<Note> prev, Note note, Optional<Note> next, FSVoicebank voicebank) {
         double realPreutter = 0;
         double realDuration = note.getDuration();
         double realOverlap = 0;
@@ -93,7 +93,7 @@ public class NoteStandardizer {
 
     // Find length of a note taking into account preutterance and overlap, but not tempo.
     private static double getAdjustedLength(
-            Voicebank voicebank,
+            FSVoicebank voicebank,
             Note cur,
             String trueLyric,
             double realPreutterance,
@@ -133,7 +133,7 @@ public class NoteStandardizer {
             Note note,
             String trueLyric,
             Note nextNote,
-            Voicebank voicebank) {
+            FSVoicebank voicebank) {
         // Confirm both notes can be rendered.
         if (!voicebank.getLyricConfig(trueLyric).isPresent()
                 || !voicebank.getLyricConfig(nextNote.getTrueLyric()).isPresent()) {

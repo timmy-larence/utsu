@@ -131,6 +131,12 @@ public class SongController implements EditorController, Localizable {
     @FXML // fx:id="playPauseIcon"
     private ImageView playPauseIcon; // Value injected by FXMLLoader
 
+    @FXML // fx:id="toFirstNoteIcon"
+    private ImageView toFirstNoteIcon; // Value injected by FXMLLoader
+
+    @FXML // fx:id="toLastNoteIcon"
+    private ImageView toLastNoteIcon; // Value injected by FXMLLoader
+    
     @FXML // fx:id="stopIcon"
     private ImageView stopIcon; // Value injected by FXMLLoader
 
@@ -282,7 +288,21 @@ public class SongController implements EditorController, Localizable {
                 event -> stopIcon.setImage(iconManager.getImage(IconType.STOP_PRESSED)));
         stopIcon.setOnMouseReleased(
                 event -> stopIcon.setImage(iconManager.getImage(IconType.STOP_NORMAL)));
-
+        
+        //TODO: Make new icons for these features
+        
+        toFirstNoteIcon.setImage(iconManager.getImage(IconType.REWIND_NORMAL));
+        toFirstNoteIcon.setOnMousePressed(
+                event -> toFirstNoteIcon.setImage(iconManager.getImage(IconType.REWIND_PRESSED)));
+        toFirstNoteIcon.setOnMouseReleased(
+                event -> toFirstNoteIcon.setImage(iconManager.getImage(IconType.REWIND_NORMAL)));
+        
+        toLastNoteIcon.setImage(iconManager.getImage(IconType.PLAY_NORMAL));
+        toLastNoteIcon.setOnMousePressed(
+                event -> toLastNoteIcon.setImage(iconManager.getImage(IconType.PLAY_PRESSED)));
+        toLastNoteIcon.setOnMouseReleased(
+                event -> toLastNoteIcon.setImage(iconManager.getImage(IconType.PLAY_NORMAL)));
+        
         languageChoiceBox.setItems(FXCollections.observableArrayList(localizer.getAllLocales()));
         languageChoiceBox
                 .setOnAction((action) -> localizer.setLocale(languageChoiceBox.getValue()));
@@ -463,8 +483,18 @@ public class SongController implements EditorController, Localizable {
             return new RegionBounds(startPos, endPos); // May be negative positions.
         }
     }
-
-    private void scrollToPosition(int positionMs) {
+    
+    /**
+     * Scrolls the viewport to the specified position.
+     * Will always place this position on the far left edge of the screen.
+     * TODO in all use cases other than playing the song, it would be
+     * more pleasant to place the position differently. For example, while the
+     * 'scroll to beginning' feature might profit from this behaviour,
+     * the 'first note' may look weird being placed smack at the left of the screen. Th
+     * 
+     * @param positionMs The number of milliseconds into the song that should be visible
+     */
+    private void scrollToPosition(int positionMs) {    	
         double trackWidth = songEditor.getWidthX();
         double viewportWidth = scrollPaneCenter.getViewportBounds().getWidth();
         if (viewportWidth != 0 && trackWidth > viewportWidth) {
@@ -770,6 +800,30 @@ public class SongController implements EditorController, Localizable {
     void stopPlayback() {
         engine.stopPlayback();
         songEditor.stopPlayback();
+    }
+
+    @FXML
+    void toFirstNote() {
+    	int newPositionMs = songEditor.getFirstNotePosition();
+        if (!scrollPaneRegion().contains(newPositionMs)) {
+            scrollToPosition(Math.max(0,newPositionMs-200));
+        }
+        songEditor.focusOnNote(newPositionMs);
+    }
+
+    @FXML
+    void toLastNote() {
+    	int newPositionMs = songEditor.getLastNotePosition();
+    	int newCursorPos = newPositionMs + songEditor.getNote(newPositionMs).getDurationMs();
+    	
+        if (!scrollPaneRegion().contains(newCursorPos)) {
+        	int screenBegin = scrollPaneRegion().getMinMs();
+        	int screenEnd = scrollPaneRegion().getMaxMs();
+        	int screenLength = screenEnd - screenBegin;
+        	
+            scrollToPosition(newCursorPos-screenLength+200);
+        }
+        songEditor.focusOnNote(newPositionMs);
     }
 
     @Override

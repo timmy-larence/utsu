@@ -9,8 +9,10 @@ import com.utsusynth.utsu.common.i18n.Localizer;
 import com.utsusynth.utsu.common.utils.RoundUtils;
 import com.utsusynth.utsu.engine.Engine;
 import com.utsusynth.utsu.model.song.SongContainer;
-import com.utsusynth.utsu.model.voicebank.VoicebankContainer;
+import com.utsusynth.utsu.model.voicebank.FSVoicebank;
+import com.utsusynth.utsu.model.voicebank.FSVoicebank;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -28,7 +30,7 @@ import javafx.stage.Stage;
  */
 public class SongPropertiesController implements Localizable {
     private final Localizer localizer;
-    private final VoicebankContainer voicebankContainer;
+    private final SimpleObjectProperty<FSVoicebank> voicebank = new SimpleObjectProperty<>();
 
     private SongContainer songContainer;
     private Engine engine;
@@ -98,9 +100,8 @@ public class SongPropertiesController implements Localizable {
     private Button cancelButton; // Value injected by FXMLLoader
 
     @Inject
-    public SongPropertiesController(Localizer localizer, VoicebankContainer voicebankContainer) {
+    public SongPropertiesController(Localizer localizer) {
         this.localizer = localizer;
-        this.voicebankContainer = voicebankContainer;
     }
 
     public void initialize() {
@@ -117,7 +118,7 @@ public class SongPropertiesController implements Localizable {
         // Set values to save.
         resamplerPath = engine.getResamplerPath();
         wavtoolPath = engine.getWavtoolPath();
-        voicebankContainer.setVoicebank(songContainer.get().getVoiceDir());
+        voicebank.set(songContainer.get().getVoiceDir());
         instrumentalPath = songContainer.get().getInstrumental();
 
         // Set text boxes.
@@ -126,7 +127,7 @@ public class SongPropertiesController implements Localizable {
         flagsTF.setText(songContainer.get().getFlags());
         resamplerName.setText(resamplerPath.getName());
         wavtoolName.setText(wavtoolPath.getName());
-        voicebankName.setText(voicebankContainer.get().getName());
+        voicebankName.setText(voicebank.get().getName());
         instrumentalName.setText(instrumentalPath.or(new File("")).getName());
 
         // Setup tempo slider.
@@ -189,8 +190,9 @@ public class SongPropertiesController implements Localizable {
         File file = dc.showDialog(null);
         if (file != null) {
             new Thread(() -> {
+                
                 voicebankContainer.setVoicebank(file);
-                String name = voicebankContainer.get().getName();
+                String name = voicebankContainer.getOrDefault().getName();
                 Platform.runLater(() -> voicebankName.setText(name));
             }).run();
         }

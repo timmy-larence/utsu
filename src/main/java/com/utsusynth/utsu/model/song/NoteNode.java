@@ -2,7 +2,7 @@ package com.utsusynth.utsu.model.song;
 
 import com.google.common.base.Optional;
 import com.utsusynth.utsu.common.exception.NoteAlreadyExistsException;
-import com.utsusynth.utsu.model.voicebank.Voicebank;
+import com.utsusynth.utsu.model.voicebank.FSVoicebank;
 
 /**
  * Node of a linked list of SongNotes.
@@ -167,7 +167,7 @@ public class NoteNode {
         }
     }
 
-    void standardize(NoteStandardizer standardizer, Voicebank voicebank) {
+    void standardize(NoteStandardizer standardizer, FSVoicebank voicebank) {
         Optional<Note> prevNote = getOptionalNote(this.prev);
         Optional<Note> nextNote = getOptionalNote(this.next);
         standardizer.standardize(prevNote, this.note, nextNote, voicebank);

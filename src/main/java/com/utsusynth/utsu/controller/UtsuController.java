@@ -19,9 +19,12 @@ import com.utsusynth.utsu.common.exception.ErrorLogger;
 import com.utsusynth.utsu.common.i18n.Localizable;
 import com.utsusynth.utsu.common.i18n.Localizer;
 import com.utsusynth.utsu.common.quantize.Scaler;
+import com.utsusynth.utsu.model.voicebank.VoicebankManager;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -32,6 +35,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 /**
@@ -60,6 +65,8 @@ public class UtsuController implements Localizable {
     private Label statusLabel;
     @FXML
     private ProgressBar loadingBar;
+    
+    private final VoicebankManager vbManager;
 
     @Inject
     public UtsuController(
@@ -67,12 +74,14 @@ public class UtsuController implements Localizable {
             Scaler scaler,
             StatusBar statusBar,
             Provider<SaveWarningDialog> saveWarningProvider,
-            Provider<FXMLLoader> fxmlLoaders) {
+            Provider<FXMLLoader> fxmlLoaders,
+            VoicebankManager vbManager) {
         this.localizer = localizer;
         this.scaler = scaler;
         this.statusBar = statusBar;
         this.saveWarningProvider = saveWarningProvider;
         this.fxmlLoaderProvider = fxmlLoaders;
+        this.vbManager = vbManager;
 
         this.editors = new HashMap<>();
     }
@@ -160,6 +169,8 @@ public class UtsuController implements Localizable {
     private Menu helpMenu; // Value injected by FXMLLoader
     @FXML
     private MenuItem aboutItem; // Value injected by FXMLLoader
+    @FXML
+    private MenuItem helloWorldItem; // Value injected by FXMLLoader
 
     @Override
     public void localize(ResourceBundle bundle) {
@@ -548,5 +559,33 @@ public class UtsuController implements Localizable {
                 recentPluginsMenu.setDisable(false);
             }
         }
+    }
+    
+    @FXML
+    void helloWorld(ActionEvent event) {
+    	// Open song properties modal.
+//        InputStream fxml = getClass().getResourceAsStream("/fxml/HelloWorldScene.fxml");
+//        FXMLLoader loader = fxmlLoaderProvider.get();
+//        try {
+            Stage currentStage = (Stage) tabs.getScene().getWindow();
+//            Stage propertiesWindow = new Stage();
+//            propertiesWindow.setTitle("Hello World");
+//            propertiesWindow.initModality(Modality.APPLICATION_MODAL);
+//            propertiesWindow.initOwner(currentStage);
+////            BorderPane propertiesPane = loader.load(fxml);
+////            VoicebankSelector controller = (VoicebankSelector) loader.getController();
+//            VoicebankSelector controller = new VoicebankSelector(localizer, fxmlLoaderProvider, vbManager);
+//            
+//            controller.selectedVoicebankProperty().addListener((o)->{
+//            	System.out.println("Selected Voicebank: "+controller.getSelectedVoicebank());
+//            });
+//            
+//            propertiesWindow.setScene(new Scene(controller));
+//            propertiesWindow.showAndWait();
+//        } catch (IOException e) {
+//            statusBar.setStatus("Error: Unable to open helloWorld.");
+//            errorLogger.logError(e);
+//        }
+    	System.out.println(new VoicebankChooser(currentStage,"Select Voicebank...",fxmlLoaderProvider,vbManager).askUserForVoicebank());
     }
 }

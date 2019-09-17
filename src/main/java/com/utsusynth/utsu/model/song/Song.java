@@ -14,8 +14,10 @@ import com.utsusynth.utsu.common.data.PitchbendData;
 import com.utsusynth.utsu.common.exception.NoteAlreadyExistsException;
 import com.utsusynth.utsu.common.utils.PitchUtils;
 import com.utsusynth.utsu.model.song.pitch.PitchCurve;
-import com.utsusynth.utsu.model.voicebank.Voicebank;
-import com.utsusynth.utsu.model.voicebank.VoicebankContainer;
+import com.utsusynth.utsu.model.voicebank.FSVoicebank;
+import com.utsusynth.utsu.model.voicebank.VoicebankManager;
+
+import javafx.beans.property.SimpleObjectProperty;
 
 /**
  * In-code representation of a song. Compatible with UST versions 1.2 and 2.0.
@@ -23,8 +25,8 @@ import com.utsusynth.utsu.model.voicebank.VoicebankContainer;
 public class Song {
     public static final int MIN_TEMPO = 50;
     public static final int MAX_TEMPO = 260;
-
-    private final VoicebankContainer voicebank;
+    
+    private SimpleObjectProperty<FSVoicebank> voicebank;
     private final NoteStandardizer standardizer;
 
     // Settings. (Anything marked with [#SETTING])
@@ -74,8 +76,8 @@ public class Song {
             return this;
         }
 
-        public Builder setVoiceDirectory(File voiceDirectory) {
-            newSong.voicebank.setVoicebank(voiceDirectory);
+        public Builder setVoicebank(FSVoicebank voicebank) {
+            newSong.setVoicebank(voicebank);
             return this;
         }
 
@@ -121,18 +123,18 @@ public class Song {
         }
 
         public Song build() {
-            noteListBuilder.standardize(newSong.standardizer, newSong.voicebank.get());
+            noteListBuilder.standardize(newSong.standardizer, newSong.getVoicebank());
             newSong.noteList = noteListBuilder.build();
             return newSong;
         }
     }
 
     public Song(
-            VoicebankContainer voicebankContainer,
+            FSVoicebank voicebank,
             NoteStandardizer standardizer,
             NoteList songNoteList,
             PitchCurve pitchbends) {
-        this.voicebank = voicebankContainer;
+        setVoicebank(voicebank);
         this.standardizer = standardizer;
         this.noteList = songNoteList;
         this.pitchbends = pitchbends;
@@ -147,7 +149,7 @@ public class Song {
         // Returns the builder of a new Song with this one's attributes.
         // The old Song's noteList and pitchbends objects are used in the new Song.
         return new Builder(
-                new Song(this.voicebank, this.standardizer, this.noteList, this.pitchbends))
+                new Song(this.getVoicebank(), this.standardizer, this.noteList, this.pitchbends))
                         .setTempo(this.tempo).setProjectName(this.projectName)
                         .setOutputFile(this.outputFile).setFlags(this.flags).setMode2(this.mode2)
                         .setInstrumental(this.instrumental);
@@ -302,7 +304,7 @@ public class Song {
         while (curNode.isPresent()) {
             Note note = curNode.get().getNote();
             // Standardize.
-            curNode.get().standardize(standardizer, voicebank.get());
+            curNode.get().standardize(standardizer, getVoicebank());
             if (!nextNeighbor.isPresent() || curPosition < startPosition) {
                 updatedNotes.addFirst(note.getUpdateData(curPosition));
             }
@@ -327,7 +329,7 @@ public class Song {
 
         // Include the prev neighbor of the first note, if present. No need to change pitch.
         if (curNode.isPresent()) {
-            curNode.get().standardize(standardizer, voicebank.get());
+            curNode.get().standardize(standardizer, getVoicebank());
             prevNeighbor = Optional.of(curNode.get().getNote().getUpdateData(curPosition));
         }
         return new MutateResponse(updatedNotes, prevNeighbor, nextNeighbor);
@@ -388,11 +390,15 @@ public class Song {
     }
 
     public File getVoiceDir() {
-        return voicebank.getLocation();
+        return getVoicebank().getLocation();
     }
 
-    public Voicebank getVoicebank() {
+    public FSVoicebank getVoicebank() {
         return voicebank.get();
+    }
+    
+    public void setVoicebank(FSVoicebank voicebank) {
+        this.voicebank.set(voicebank);
     }
 
     public NoteIterator getNoteIterator() {

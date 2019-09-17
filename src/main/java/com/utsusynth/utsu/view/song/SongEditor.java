@@ -462,6 +462,18 @@ public class SongEditor {
         }
         return Optional.absent();
     }
+    
+    public Note getNote(int position) {
+    	return noteMap.getNote(position);
+    }
+    
+    public int getFirstNotePosition() {
+    	return noteMap.getFirstPosition(RegionBounds.WHOLE_SONG);
+    }
+    
+    public int getLastNotePosition() {
+    	return noteMap.getLastPosition(RegionBounds.WHOLE_SONG);
+    }
 
     public void focusOnNote(int position) {
         if (!noteMap.hasNote(position)) {

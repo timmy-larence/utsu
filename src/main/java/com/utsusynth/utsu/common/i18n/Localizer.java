@@ -34,6 +34,10 @@ public class Localizer {
             target.localize(this.bundle);
         }
     }
+    
+    public ResourceBundle getBundle() {
+    	return bundle;
+    }
 
     public NativeLocale getCurrentLocale() {
         return locale;

@@ -1,6 +1,7 @@
 package com.utsusynth.utsu.files;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -24,13 +25,14 @@ import com.google.inject.Provider;
 import com.utsusynth.utsu.common.exception.ErrorLogger;
 import com.utsusynth.utsu.model.voicebank.LyricConfig;
 import com.utsusynth.utsu.model.voicebank.Voicebank;
+import com.utsusynth.utsu.model.voicebank.FSVoicebank;
 
 public class VoicebankReader {
     private static final ErrorLogger errorLogger = ErrorLogger.getLogger();
 
     private static final Pattern LYRIC_PATTERN = Pattern.compile("(.+\\.wav)=([^,]*),");
     private static final Pattern PITCH_PATTERN =
-            Pattern.compile("([a-gA-G]#?[1-7])\\t\\S*\\t(\\S.*)");
+            Pattern.compile("([a-gA-G]#?[1-7])\\t(\\S*)\\t(\\S.*)");
 
     private final File defaultVoicePath;
     private final File lyricConversionPath;
@@ -49,13 +51,28 @@ public class VoicebankReader {
     public File getDefaultPath() {
         return defaultVoicePath;
     }
+    
+    /**
+     * Returns {@code true} if the specified directory defines a voicebank.
+     * <br><br>
+     * This implementation uses the naive assumption that any directory containing
+     * either an 'oto.ini' or an 'oto_ini.txt' file is a valid {@link FSVoicebank}. Therefore
+     * it only checks if either of those files exist.
+     * 
+     * @param sourceDir the directory to check
+     * @return if the specified directory is a valid voicebank
+     */
+    public static boolean isVoicebank(File sourceDir) {
+    	if(!sourceDir.isDirectory())
+    		sourceDir = sourceDir.getParentFile();
+    	return new File(sourceDir,"oto.ini").exists() || new File(sourceDir,"oto_ini.txt").exists();
+    }
 
-    public Voicebank loadVoicebankFromDirectory(File sourceDir) {
-        Voicebank.Builder builder = voicebankProvider.get().toBuilder();
-
+    public FSVoicebank loadVoicebankFromDirectory(File sourceDir) throws IOException {
         File pathToVoicebank;
         if (!sourceDir.exists()) {
-            pathToVoicebank = defaultVoicePath;
+        	throw new FileNotFoundException(sourceDir.getCanonicalPath());
+//            pathToVoicebank = defaultVoicePath;
         } else {
             if (!sourceDir.isDirectory()) {
                 pathToVoicebank = sourceDir.getParentFile();
@@ -63,21 +80,31 @@ public class VoicebankReader {
                 pathToVoicebank = sourceDir;
             }
         }
+        
+        if(!isVoicebank(pathToVoicebank)) {
+        	throw new InvalidVoicebankException(pathToVoicebank);
+        }
+        
+        FSVoicebank.Builder builder = voicebankProvider.get().toBuilder();
+        
         builder.setPathToVoicebank(pathToVoicebank);
-        System.out.println("Parsed voicebank as " + pathToVoicebank);
+        System.out.println("Reading voicebank at " + pathToVoicebank + "...");
 
         // Parse character data in English or Japanese.
         String characterData =
                 readConfigFile(pathToVoicebank.toPath().resolve("character.txt").toFile());
+        String characterName = pathToVoicebank.getName();
         for (String rawLine : characterData.split("\n")) {
             String line = rawLine.trim();
-            if (line.startsWith("name=")) {
-                builder.setName(line.substring("name=".length()));
+            if (line.toLowerCase().startsWith("name=")) {
+            	characterName = line.substring("name=".length());
+                builder.setName(characterName);
             } else if (line.startsWith("名前：")) {
-                builder.setName(line.substring("名前：".length()));
-            } else if (line.startsWith("author=")) {
+            	characterName = line.substring("名前：".length());
+                builder.setName(characterName);
+            } else if (line.toLowerCase().startsWith("author=")) {
                 builder.setAuthor(line.substring("author=".length()));
-            } else if (line.startsWith("CV：")) {
+            } else if (line.toLowerCase().startsWith("cv：")) {
                 builder.setAuthor(line.substring("CV：".length()));
             } else if (line.startsWith("image=")) {
                 builder.setImageName(line.substring("image=".length()));
@@ -115,13 +142,17 @@ public class VoicebankReader {
         }
 
         // Parse pitch map in arbitrary order, if present.
+        // TODO Arbitrary order might not be the best thing to do,
+        // since these two files can have contradictory contents
         for (String pitchMapName : ImmutableSet.of("prefixmap", "prefix.map")) {
             parsePitchMap(pathToVoicebank.toPath().resolve(pitchMapName).toFile(), builder);
         }
 
         // Parse conversion set for romaji-hiragana-katakana conversion.
         readLyricConversionsFromFile(builder);
-
+        
+        System.out.println("Successfully read '"+characterName+"' from "+pathToVoicebank);
+        
         return builder.build();
     }
 
@@ -129,7 +160,7 @@ public class VoicebankReader {
             File pathToVoicebank,
             Path pathToOtoFile,
             String otoFile,
-            Voicebank.Builder builder) {
+            FSVoicebank.Builder builder) {
         String otoData = readConfigFile(pathToOtoFile.resolve(otoFile).toFile());
         for (String rawLine : otoData.split("\n")) {
             String line = rawLine.trim();
@@ -160,7 +191,7 @@ public class VoicebankReader {
         }
     }
 
-    private void parsePitchMap(File pitchMapFile, Voicebank.Builder builder) {
+    private void parsePitchMap(File pitchMapFile, FSVoicebank.Builder builder) {
         String pitchData = readConfigFile(pitchMapFile);
         for (String rawLine : pitchData.split("\n")) {
             String line = rawLine.trim();
@@ -168,14 +199,15 @@ public class VoicebankReader {
             Matcher matcher = PITCH_PATTERN.matcher(line);
             if (matcher.find()) {
                 String pitch = matcher.group(1);
-                String suffix = matcher.group(2);
-                builder.addPitchSuffix(pitch, suffix);
+                String prefix = matcher.group(2);
+                String suffix = matcher.group(3);
+                builder.addPitchMap(pitch, prefix, suffix);
             }
         }
     }
 
     /* Gets disjoint set used for romaji-hiragana-katakana conversions. */
-    private void readLyricConversionsFromFile(Voicebank.Builder builder) {
+    private void readLyricConversionsFromFile(FSVoicebank.Builder builder) {
         String conversionData = readConfigFile(lyricConversionPath);
         for (String line : conversionData.split("\n")) {
             builder.addConversionGroup(line.trim().split(","));

@@ -116,17 +116,17 @@ public class VoicebankController implements EditorController, Localizable {
     public void initialize() {
         nameTextField.textProperty().addListener(event -> {
             String newText = nameTextField.getText();
-            voicebank.mutate(voicebank.get().toBuilder().setName(newText).build());
+            voicebank.mutate(voicebank.getOrDefault().toBuilder().setName(newText).build());
             onVoicebankChange();
         });
         authorTextField.textProperty().addListener(event -> {
             String newText = authorTextField.getText();
-            voicebank.mutate(voicebank.get().toBuilder().setAuthor(newText).build());
+            voicebank.mutate(voicebank.getOrDefault().toBuilder().setAuthor(newText).build());
             onVoicebankChange();
         });
         descriptionTextArea.textProperty().addListener(event -> {
             String newText = descriptionTextArea.getText();
-            voicebank.mutate(voicebank.get().toBuilder().setDescription(newText).build());
+            voicebank.mutate(voicebank.getOrDefault().toBuilder().setDescription(newText).build());
             onVoicebankChange();
         });
 
@@ -134,7 +134,7 @@ public class VoicebankController implements EditorController, Localizable {
         voiceEditor.initialize(new VoicebankCallback() {
             @Override
             public Iterator<LyricConfigData> getLyricData(String category) {
-                return voicebank.get().getLyricData(category);
+                return voicebank.getOrDefault().getLyricData(category);
             }
 
             @Override
@@ -149,20 +149,20 @@ public class VoicebankController implements EditorController, Localizable {
 
             @Override
             public boolean addLyric(LyricConfigData lyricData) {
-                boolean wasSuccessful = voicebank.get().addLyricData(lyricData);
+                boolean wasSuccessful = voicebank.getOrDefault().addLyricData(lyricData);
                 onVoicebankChange();
                 return wasSuccessful;
             }
 
             @Override
             public void removeLyric(String lyric) {
-                voicebank.get().removeLyricConfig(lyric);
+                voicebank.getOrDefault().removeLyricConfig(lyric);
                 onVoicebankChange();
             }
 
             @Override
             public void modifyLyric(LyricConfigData lyricData) {
-                voicebank.get().modifyLyricData(lyricData);
+                voicebank.getOrDefault().modifyLyricData(lyricData);
                 onVoicebankChange();
             }
 
@@ -170,7 +170,7 @@ public class VoicebankController implements EditorController, Localizable {
             public void generateFrqFiles(Iterator<LyricConfigData> lyricIterator) {
                 statusBar.setStatus("Generating .frq files...");
                 new Thread(() -> {
-                    voicebank.get().generateFrqs(lyricIterator);
+                    voicebank.getOrDefault().generateFrqs(lyricIterator);
                     Platform.runLater(() -> statusBar.setStatus("Finished generating .frq files."));
                     // Change cannot be saved or undone, so don't call onVoicebankChange.
                 }).start();
@@ -186,7 +186,7 @@ public class VoicebankController implements EditorController, Localizable {
         pitchEditor.initialize(new PitchCallback() {
             @Override
             public void setPitch(PitchMapData pitchData) {
-                voicebank.get().setPitchData(pitchData);
+                voicebank.getOrDefault().setPitchData(pitchData);
                 onVoicebankChange();
             }
 
@@ -252,7 +252,7 @@ public class VoicebankController implements EditorController, Localizable {
     public void refreshView() {
         // Set song image.
         try {
-            Image image = new Image("file:" + voicebank.get().getImagePath());
+            Image image = new Image("file:" + voicebank.getOrDefault().getImagePath());
             voicebankImage.setImage(image);
         } catch (Exception e) {
             System.out.println("Exception while loading voicebank image.");
@@ -260,16 +260,16 @@ public class VoicebankController implements EditorController, Localizable {
         }
 
         // Set name, author, and description.
-        nameTextField.setText(voicebank.get().getName());
-        authorTextField.setText(voicebank.get().getAuthor());
-        descriptionTextArea.setText(voicebank.get().getDescription());
+        nameTextField.setText(voicebank.getOrDefault().getName());
+        authorTextField.setText(voicebank.getOrDefault().getAuthor());
+        descriptionTextArea.setText(voicebank.getOrDefault().getDescription());
 
         // Reload voicebank editor.
         otoPane.getChildren().clear();
-        otoPane.getChildren().add(voiceEditor.createNew(voicebank.get().getCategories()));
+        otoPane.getChildren().add(voiceEditor.createNew(voicebank.getOrDefault().getCategories()));
 
         // Reload pitch map editor.
-        pitchPane.setContent(pitchEditor.createPitchView(voicebank.get().getPitchData()));
+        pitchPane.setContent(pitchEditor.createPitchView(voicebank.getOrDefault().getPitchData()));
 
         // Remove lyric config editor.
         anchorBottom.getChildren().clear();
@@ -318,7 +318,7 @@ public class VoicebankController implements EditorController, Localizable {
                 try {
                     voicebank.setVoicebank(file);
                     undoService.clearActions();
-                    voicebank.get(); // Loads voicebank from file if necessary.
+                    voicebank.getOrDefault(); // Loads voicebank from file if necessary.
                     Platform.runLater(() -> {
                         // UI thread.
                         refreshView();
@@ -342,7 +342,7 @@ public class VoicebankController implements EditorController, Localizable {
         statusBar.setStatus("Saving...");
         new Thread(() -> {
             try {
-                voicebankWriter.writeVoicebankToDirectory(voicebank.get(), voicebank.getLocation());
+                voicebankWriter.writeVoicebankToDirectory(voicebank.getOrDefault(), voicebank.getLocation());
                 Platform.runLater(() -> {
                     statusBar.setStatus(
                             "Saved changes to voicebank: " + voicebank.getLocation().getName());

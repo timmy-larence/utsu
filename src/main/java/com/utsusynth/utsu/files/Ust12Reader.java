@@ -193,7 +193,7 @@ public class Ust12Reader {
             } else if (line.startsWith("OutFile=")) {
                 builder.setOutputFile(voicebankReader.parseFilePath(line, "OutFile="));
             } else if (line.startsWith("VoiceDir=")) {
-                builder.setVoiceDirectory(voicebankReader.parseFilePath(line, "VoiceDir="));
+                builder.setVoicebank(voicebankReader.parseFilePath(line, "VoiceDir="));
             } else if (line.startsWith("Flags=")) {
                 builder.setFlags(line.substring("Flags=".length()));
             } else if (line.startsWith("Mode2=")) {

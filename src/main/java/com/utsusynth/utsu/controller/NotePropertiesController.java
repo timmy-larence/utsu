@@ -15,7 +15,7 @@ import com.utsusynth.utsu.model.song.Note;
 import com.utsusynth.utsu.model.song.NoteIterator;
 import com.utsusynth.utsu.model.song.SongContainer;
 import com.utsusynth.utsu.model.voicebank.LyricConfig;
-import com.utsusynth.utsu.model.voicebank.Voicebank;
+import com.utsusynth.utsu.model.voicebank.FSVoicebank;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -34,7 +34,7 @@ public class NotePropertiesController implements Localizable {
     private final Localizer localizer;
 
     private ImmutableList<Note> notes;
-    private Voicebank voicebank;
+    private FSVoicebank voicebank;
     private NotePropertiesCallback callback;
 
     @FXML // fx:id="root"

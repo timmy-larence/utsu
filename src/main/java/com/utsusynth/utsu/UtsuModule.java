@@ -28,11 +28,12 @@ public class UtsuModule extends AbstractModule {
     }
 
     @Provides
-    private FXMLLoader provideFXMLLoader(final Injector injector) {
+    private FXMLLoader provideFXMLLoader(final Injector injector, final Localizer localizer) {
         FXMLLoader loader = new FXMLLoader();
         loader.setControllerFactory(p -> {
             return injector.getInstance(p);
         });
+        loader.setResources(localizer.getBundle());
         return loader;
     }
 
@@ -56,6 +57,7 @@ public class UtsuModule extends AbstractModule {
         NativeLocale defaultLocale = new NativeLocale(new Locale("en"));
         ImmutableList<NativeLocale> allLocales = ImmutableList.of(
                 defaultLocale,
+                new NativeLocale(new Locale("de")),
                 new NativeLocale(new Locale("ja")),
                 new NativeLocale(new Locale("es")),
                 new NativeLocale(new Locale("it")),

@@ -17,8 +17,7 @@ import com.utsusynth.utsu.model.song.pitch.portamento.PortamentoFactory;
 import com.utsusynth.utsu.model.voicebank.DisjointLyricSet;
 import com.utsusynth.utsu.model.voicebank.LyricConfigMap;
 import com.utsusynth.utsu.model.voicebank.PitchMap;
-import com.utsusynth.utsu.model.voicebank.Voicebank;
-import com.utsusynth.utsu.model.voicebank.VoicebankContainer;
+import com.utsusynth.utsu.model.voicebank.FSVoicebank;
 import com.utsusynth.utsu.model.voicebank.VoicebankManager;
 
 public class ModelModule extends AbstractModule {
@@ -32,25 +31,25 @@ public class ModelModule extends AbstractModule {
 
     @Provides
     private Song provideEmptySong(
-            VoicebankContainer voicebankContainer,
+            VoicebankManager voicebankManager,
             NoteStandardizer noteStandardizer,
             NoteList noteList,
             PitchCurve pitchCurve) {
-        return new Song(voicebankContainer, noteStandardizer, noteList, pitchCurve);
+        return new Song(voicebankManager.getDefaultVoicebank(), noteStandardizer, noteList, pitchCurve);
     }
 
     @Provides
-    private Voicebank provideEmptyVoicebank(
+    private FSVoicebank provideEmptyVoicebank(
             LyricConfigMap configMap,
             PitchMap pitchMap,
             DisjointLyricSet conversionSet,
             FrqGenerator frqGen) {
-        return new Voicebank(configMap, pitchMap, conversionSet, new HashSet<>(), frqGen);
+        return new FSVoicebank(configMap, pitchMap, conversionSet, new HashSet<>(), frqGen);
     }
 
     @Provides
     @Singleton
-    private VoicebankReader provideVoicebankReader(Provider<Voicebank> voicebankProvider) {
+    private VoicebankReader provideVoicebankReader(Provider<FSVoicebank> voicebankProvider) {
         return new VoicebankReader(
                 new File("assets/voice/Iona_Beta/"),
                 new File("assets/config/lyric_conversions.txt"),

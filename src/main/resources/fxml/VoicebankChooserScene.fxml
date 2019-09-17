@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import com.utsusynth.utsu.controller.VoicebankSelector?>
+
+<VBox minWidth="-Infinity" prefWidth="600" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+	<fx:define>
+	  <ToggleGroup fx:id="toggleGroup1"/>  
+	</fx:define>
+	<children>
+      <BorderPane fx:id="root" maxHeight="Infinity" maxWidth="Infinity">
+         <bottom>
+            <ButtonBar prefHeight="40.0" BorderPane.alignment="CENTER">
+              <buttons>
+                  <Button fx:id="resetButton" alignment="CENTER" mnemonicParsing="false" onAction="#restoreDefaults" text="%general.reset" ButtonBar.buttonData="LEFT" />
+                  <Button fx:id="applyButton" alignment="CENTER" defaultButton="true" mnemonicParsing="false" onAction="#applyProperties" text="%general.select" />
+                  <Button fx:id="cancelButton" alignment="CENTER" mnemonicParsing="false" onAction="#closeProperties" text="%general.cancel" />
+              </buttons>
+               <BorderPane.margin>
+                  <Insets left="5.0" right="5.0" />
+               </BorderPane.margin>
+            </ButtonBar>
+         </bottom>
+         <center>
+            <VBox maxHeight="Infinity" BorderPane.alignment="CENTER">
+               <children>
+                  <RadioButton fx:id="selKnown" alignment="TOP_LEFT" maxHeight="Infinity" maxWidth="Infinity" mnemonicParsing="false" selected="true" VBox.vgrow="ALWAYS" toggleGroup="$toggleGroup1">
+                     <graphic>
+                        <VBox maxHeight="Infinity" maxWidth="Infinity" prefWidth="Infinity" spacing="5.0">
+                           <children>
+                              <Label fx:id="lblSelFromList" prefHeight="17.0" prefWidth="268.0" text="%voice.selectknown" />
+                              <VBox fx:id="vbSelBox" maxHeight="Infinity" maxWidth="Infinity" minHeight="200.0" minWidth="350.0" VBox.vgrow="ALWAYS" >
+<!--                                 <VoicebankSelector fx:id="vbSelector"/> -->
+                              </VBox>
+                           </children>
+                           <padding>
+                              <Insets bottom="5.0" left="5.0" right="5.0" />
+                           </padding>
+                        </VBox>
+                     </graphic>
+                  </RadioButton>
+                  <RadioButton fx:id="selFile" alignment="TOP_LEFT" maxHeight="-Infinity" maxWidth="Infinity" mnemonicParsing="false" prefHeight="67.0" toggleGroup="$toggleGroup1">
+                     <graphic>
+                        <VBox maxWidth="Infinity" prefHeight="76.0" prefWidth="Infinity" spacing="5.0">
+                           <children>
+                              <Label fx:id="lblSelFromFS" text="%voice.selectfs" />
+                              <HBox maxWidth="Infinity" prefHeight="100.0">
+                                 <children>
+                                    <TextField fx:id="inFilePath" editable="false" maxWidth="Infinity" HBox.hgrow="ALWAYS" />
+                                    <Button fx:id="btnFolderBrowse" mnemonicParsing="false" text="%file.browse" onAction="#browseFS" />
+                                 </children>
+                              </HBox>
+                              <CheckBox fx:id="chkAddToList" mnemonicParsing="false" text="%voice.addtoknown" />
+                           </children>
+                           <padding>
+                              <Insets bottom="5.0" left="5.0" right="5.0" />
+                           </padding>
+                        </VBox>
+                     </graphic>
+                  </RadioButton>
+               </children>
+               <BorderPane.margin>
+                  <Insets />
+               </BorderPane.margin>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </VBox>
+         </center>
+      </BorderPane>
+   </children>
+</VBox>

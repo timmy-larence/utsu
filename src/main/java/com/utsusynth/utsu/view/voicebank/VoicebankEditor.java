@@ -3,6 +3,9 @@ package com.utsusynth.utsu.view.voicebank;
 import java.io.File;
 import java.util.Iterator;
 import java.util.Set;
+
+import javax.swing.event.ChangeEvent;
+
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.utsusynth.utsu.common.data.LyricConfigData;
@@ -127,12 +130,17 @@ public class VoicebankEditor {
             row.setOnMousePressed(event -> {
                 contextMenu.hide();
             });
-            row.setOnMouseClicked(event -> {
-                if (event.getButton().equals(MouseButton.PRIMARY)) {
-                    model.displayLyric(row.getItem());
-                }
-            });
+//            row.setOnMouseClicked(event -> {
+//                if (event.getButton().equals(MouseButton.PRIMARY)) {
+//                    model.displayLyric(row.getItem());
+//                }
+//            });
             return row;
+        });
+        table.getSelectionModel().selectedItemProperty().addListener(event -> {
+        	LyricConfigData sel = table.getSelectionModel().getSelectedItem();
+        	if(sel!=null)
+        		model.displayLyric(sel);
         });
 
         // Add columns.

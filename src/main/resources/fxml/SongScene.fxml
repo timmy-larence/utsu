@@ -29,6 +29,12 @@
                      </children>
                   </HBox>
                   <ChoiceBox fx:id="languageChoiceBox" prefWidth="150.0" />
+                  <HBox spacing="10.0">
+                     <children>
+                        <ImageView fx:id="toFirstNoteIcon" fitHeight="27.0" fitWidth="27.0" onMouseClicked="#toFirstNote" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="toLastNoteIcon" fitHeight="27.0" fitWidth="27.0" onMouseClicked="#toLastNote" pickOnBounds="true" preserveRatio="true" />
+                     </children>
+                  </HBox>
                </children>
                <padding>
                   <Insets left="10.0" top="30.0" />
@@ -44,7 +50,7 @@
          <center>
             <HBox minWidth="600.0" prefHeight="350.0" prefWidth="900.0">
                <children>
-                  <ScrollPane fx:id="scrollPaneLeft" hbarPolicy="ALWAYS" hmax="0.0" minViewportWidth="100.0" vbarPolicy="NEVER" vvalue="0.5">
+                  <ScrollPane fx:id="scrollPaneLeft" hbarPolicy="NEVER" hmax="0.0" minViewportWidth="100.0" vbarPolicy="NEVER" vvalue="0.5">
                      <content>
                       <AnchorPane fx:id="anchorLeft" maxWidth="100.0" minWidth="100.0" />
                      </content>

@@ -25,16 +25,18 @@ public class UtsuApp extends Application {
     public void start(Stage primaryStage) throws Exception {
         // Warn users if they're using the wrong working directory.
         if (!new File("./assets").exists()) {
-            System.out.println("Current working directory: " + System.getProperty("user.dir"));
-            System.out.println("Please cd to JAR file's parent directory before running Utsu.");
+            System.err.println("UTSU assets directory could not be found in the current working directory.");
+            System.err.println("These assets are required for UTSU to work properly.");
+            System.err.println("The current working directory is: " + System.getProperty("user.dir"));
+            System.err.println("If this is not your UTSU install directory, please move there.");
+            System.err.println("Otherwise your installation is broken. In that case, please reinstall UTSU.");
             primaryStage.show();
             primaryStage.close();
             return;
         }
 
         // Set up Guice.
-        Injector injector =
-                Guice.createInjector(new UtsuModule(), new ModelModule(), new ViewModule());
+        Injector injector = Guice.createInjector(new UtsuModule(), new ModelModule(), new ViewModule());
         FXMLLoader loader = injector.getInstance(FXMLLoader.class);
 
         // Construct scene.
